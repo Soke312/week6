@@ -11,33 +11,26 @@ var entries = mongoose.model('entries', mySchema);
 
 mongoose.connection.once('open', function(){
     http.createServer( function (req, res) {
-        if(req.method === "POST") {
-            var jsonData ="";
-            req.on('data', function(chunk){
+        if (req.method === "POST") {
+            var jsonData = "";
+            req.on('data', function (chunk) {
                 jsonData += chunk;
             });
-            req.on('end',function() {
+            req.on('end', function () {
                 var requestObject = JSON.parse(jsonData);
-                var newEntry = entries.find()
-                newEntry.exec(function (err, doc) {
-                    console.log(doc.toString());
-                    doc.save(function (err, doc) {
-                        entries.find({}, function (err, doc) {
-                            console.log(doc.toString());
-                            mongoose.disconnect();
-                        });
-                    });
-                });
+                   var newEntry = new entries({
+                       entry: requestObject.thing
+                })
+                newEntry.save(function (err, docs) {
+                    console.log("Saved to db: " + docs)
+                })
             });
-      } else if (req.method === "GET" && req.url === "/list"){
-            res.setHeader("Content-Type","text/html");
-            res.writeHead(200);
-            res.write('<html><head><title>week 6 project</title></head>');
-            res.write('<body>');
-            res.write('\n<div id="list">mySchema</div>');
-                res.end('\n</body></html>');
-
-        } else {
+    }else if (req.method === "GET" && req.url === "/list"){
+            var query = entries.find({})
+            query.exec(function(err, doc){
+                console.log(doc)
+            });
+           } else {
             var urlObj = url.parse( req.url, true, false);
             fs.readFile(ROOT_DIR + urlObj.pathname, function (err, data) {
                 if (err) {

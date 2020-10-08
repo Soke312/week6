@@ -20,3 +20,4 @@ function getAllItems () {
         }
     })
 }
+getAllItems();
